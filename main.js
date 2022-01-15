@@ -4,6 +4,7 @@ const INTENTS = ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "GUILD_SCHEDU
 const TOKEN = process.env.UBERBOT_DISCORD_TOKEN;
 const LEADER_THRESHOLD = 2;
 const DISCONNECT_MESSAGE = "There must be at least 2 leaders in a voice channel for you to join.";
+const LOG_CHANNEL = 'uberbot-log';
 
 const client = new Client({ intents: INTENTS });
 
@@ -38,7 +39,20 @@ client.on('voiceStateUpdate', function(oldState, newState) {
     }
 });
 
+client.on('messageCreate', (message) => {
+    const messageChannel = client.channels.cache.find((channel) => channel.id === message.channelId)
+    if(messageChannel.name === LOG_CHANNEL) return; // Prevents infinite loops!
+    const logChannel = client.channels.cache.find((channel) => channel.name === LOG_CHANNEL);
+    const authorName = getNickname(message.guildId, message.author);
+    logChannel.send(`[${messageChannel.name}] [${authorName}] ${message.content}`);
+});
+
 // Helper
+const getNickname = (guildID, clientUser) => {
+    let guild = client.guilds.cache.find((guild) => guild.id === guildID);
+    let member = guild.members.cache.find((member) => member.id === clientUser.id);
+    return member ? member.displayName : clientUser.username;
+};
 const isLeader = (member) => member.roles.cache.some(role => role.name === 'Leader');
 const leadersInChannel = (channel) => Array.from(channel.members.values()).filter((member) => isLeader(member));
 
