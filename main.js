@@ -27,6 +27,7 @@ client.on('voiceStateUpdate', function (oldState, newState) {
 
 // If leader leaves room, and there are less than 2 leaders and more than 0 campers - send warnings to relevant parties.
 client.on('voiceStateUpdate', function(oldState, newState) {
+    if (oldState.channel === null) return;
     const leadersInOldChannel = leadersInChannel(oldState.channel);
     const nonleadersInOldChannel = oldState.channel.members.size - leadersInOldChannel.length;
     if (nonleadersInOldChannel > 0 && leadersInOldChannel.length < 2) {
