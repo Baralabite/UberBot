@@ -13,6 +13,8 @@ client.on('ready', () => {
 });
 
 // Logic
+
+// Don't allow campers to join rooms without two or more leaders.
 client.on('voiceStateUpdate', function (oldState, newState) {
     if (newState === null) return;
     if (newState.channel === null) return;
@@ -20,6 +22,18 @@ client.on('voiceStateUpdate', function (oldState, newState) {
     if (leadersInChannel(newState.channel).length < 2) {
         newState.member.send(DISCONNECT_MESSAGE);
         newState.disconnect(DISCONNECT_MESSAGE);
+    }
+});
+
+// If leader leaves room, and there are less than 2 leaders and more than 0 campers - send warnings to relevant parties.
+client.on('voiceStateUpdate', function(oldState, newState) {
+    const leadersInOldChannel = leadersInChannel(oldState.channel);
+    const nonleadersInOldChannel = oldState.channel.members.size - leadersInOldChannel.length;
+    if (nonleadersInOldChannel > 0 && leadersInOldChannel.length < 2) {
+        const channelName = oldState.channel.name;
+        const message = `[WARNING] The channel ${channelName} has ${nonleadersInOldChannel} campers, but less than 2 leaders to supervise.`;
+        newState.member.send(message);
+        leadersInOldChannel.forEach(leader => leader.send(message));
     }
 });
 
