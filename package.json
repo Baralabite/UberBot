@@ -1,0 +1,14 @@
+{
+  "name": "uberbot",
+  "version": "1.0.0",
+  "description": "A bot to help administer the UTS22 discord",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Board",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^13.5.1"
+  }
+}
